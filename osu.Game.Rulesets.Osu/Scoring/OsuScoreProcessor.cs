@@ -13,6 +13,7 @@ namespace osu.Game.Rulesets.Osu.Scoring
 {
     public partial class OsuScoreProcessor : ScoreProcessor
     {
+
         public OsuScoreProcessor()
             : base(new OsuRuleset())
         {
@@ -34,5 +35,6 @@ namespace osu.Game.Rulesets.Osu.Scoring
                     return new OsuJudgementResult(hitObject, judgement);
             }
         }
+
     }
 }

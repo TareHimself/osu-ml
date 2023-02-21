@@ -6,6 +6,7 @@ using System.Linq;
 using osu.Framework.Allocation;
 using osu.Framework.Graphics.Containers;
 using osu.Framework.Timing;
+using osu.Game.ML;
 using osu.Game.Rulesets.Objects;
 using osu.Game.Rulesets.UI;
 using osu.Game.Skinning;
@@ -31,12 +32,16 @@ namespace osu.Game.Screens.Play.HUD
         private IClock? referenceClock;
         private IEnumerable<HitObject>? objects;
 
+        public MlBridgeInstance inst = MlBridgeInstance.GetInstance();
         public IEnumerable<HitObject> Objects
         {
             set
             {
                 objects = value;
                 FirstHitTime = objects.FirstOrDefault()?.StartTime ?? 0;
+
+                inst.FirstHitTime = FirstHitTime;
+
                 //TODO: this isn't always correct (consider mania where a non-last object may last for longer than the last in the list).
                 LastHitTime = objects.LastOrDefault()?.GetEndTime() ?? 0;
                 UpdateObjects(objects);

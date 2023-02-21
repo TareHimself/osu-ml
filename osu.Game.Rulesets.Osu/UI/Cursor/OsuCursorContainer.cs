@@ -40,6 +40,7 @@ namespace osu.Game.Rulesets.Osu.UI.Cursor
         private Bindable<float> userCursorScale;
         private Bindable<bool> autoCursorScale;
 
+
         public OsuCursorContainer()
         {
             InternalChild = fadeContainer = new Container
@@ -174,5 +175,6 @@ namespace osu.Game.Rulesets.Osu.UI.Cursor
                 Scale = new Vector2(1 / Texture.ScaleAdjust);
             }
         }
+
     }
 }

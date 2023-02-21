@@ -24,7 +24,8 @@ namespace osu.Game.Graphics.Containers
     /// </remarks>
     public abstract partial class HoldToConfirmContainer : Container
     {
-        public const double DANGEROUS_HOLD_ACTIVATION_DELAY = 500;
+        // public const double DANGEROUS_HOLD_ACTIVATION_DELAY = 500;
+        public const double DANGEROUS_HOLD_ACTIVATION_DELAY = 0;
 
         private const int fadeout_delay = 200;
 

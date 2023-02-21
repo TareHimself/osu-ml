@@ -43,7 +43,9 @@ namespace osu.Game.Rulesets.Osu
         public OsuInputManager(RulesetInfo ruleset)
             : base(ruleset, 0, SimultaneousBindingMode.Unique)
         {
+
         }
+
 
         protected override bool Handle(UIEvent e)
         {

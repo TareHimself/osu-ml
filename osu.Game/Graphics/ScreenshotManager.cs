@@ -86,30 +86,30 @@ namespace osu.Game.Graphics
         {
             Interlocked.Increment(ref screenShotTasks);
 
-            if (!captureMenuCursor.Value)
-            {
-                cursorVisibility.Value = false;
+            // if (!captureMenuCursor.Value)
+            // {
+            //     cursorVisibility.Value = false;
 
-                // We need to wait for at most 3 draw nodes to be drawn, following which we can be assured at least one DrawNode has been generated/drawn with the set value
-                const int frames_to_wait = 3;
+            //     // We need to wait for at most 3 draw nodes to be drawn, following which we can be assured at least one DrawNode has been generated/drawn with the set value
+            //     const int frames_to_wait = 3;
 
-                int framesWaited = 0;
+            //     int framesWaited = 0;
 
-                using (var framesWaitedEvent = new ManualResetEventSlim(false))
-                {
-                    ScheduledDelegate waitDelegate = host.DrawThread.Scheduler.AddDelayed(() =>
-                    {
-                        if (framesWaited++ >= frames_to_wait)
-                            // ReSharper disable once AccessToDisposedClosure
-                            framesWaitedEvent.Set();
-                    }, 10, true);
+            //     using (var framesWaitedEvent = new ManualResetEventSlim(false))
+            //     {
+            //         ScheduledDelegate waitDelegate = host.DrawThread.Scheduler.AddDelayed(() =>
+            //         {
+            //             if (framesWaited++ >= frames_to_wait)
+            //                 // ReSharper disable once AccessToDisposedClosure
+            //                 framesWaitedEvent.Set();
+            //         }, 10, true);
 
-                    if (!framesWaitedEvent.Wait(1000))
-                        throw new TimeoutException("Screenshot data did not arrive in a timely fashion");
+            //         if (!framesWaitedEvent.Wait(1000))
+            //             throw new TimeoutException("Screenshot data did not arrive in a timely fashion");
 
-                    waitDelegate.Cancel();
-                }
-            }
+            //         waitDelegate.Cancel();
+            //     }
+            // }
 
             using (var image = await host.TakeScreenshotAsync().ConfigureAwait(false))
             {

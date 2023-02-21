@@ -10,6 +10,7 @@ using osu.Framework.Graphics;
 using osu.Game.Beatmaps.Timing;
 using osu.Game.Rulesets.Scoring;
 using osu.Game.Utils;
+using osu.Game.ML;
 
 namespace osu.Game.Screens.Play
 {
@@ -43,6 +44,10 @@ namespace osu.Game.Screens.Play
         {
             this.gameplayStartTime = gameplayStartTime;
             this.scoreProcessor = scoreProcessor;
+            isBreakTime.ValueChanged += (state) =>
+            {
+                MlBridgeInstance.GetInstance().IsBreakTime = state.NewValue;
+            };
         }
 
         protected override void Update()

@@ -50,6 +50,10 @@ namespace osu.Game.Rulesets.UI
             }
         }
 
+        public virtual void OnStateFromKeyCounter(string action, bool state){
+
+        }
+
         protected override InputState CreateInitialState() => new RulesetInputManagerInputState<T>(base.CreateInitialState());
 
         protected override Container<Drawable> Content => content;

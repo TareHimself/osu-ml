@@ -43,7 +43,7 @@ namespace osu.Game.Screens.Play
 
         private readonly Track track;
 
-        private readonly double skipTargetTime;
+        public readonly double skipTargetTime;
 
         /// <summary>
         /// Stores the time at which the last <see cref="StopGameplayClock"/> call was triggered.
@@ -73,6 +73,7 @@ namespace osu.Game.Screens.Play
             track = beatmap.Track;
 
             StartTime = findEarliestStartTime();
+
         }
 
         private double findEarliestStartTime()

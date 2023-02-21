@@ -5,6 +5,7 @@
 
 using osu.Framework.Graphics.Containers;
 using osu.Framework.Graphics.Cursor;
+using osu.Game.ML;
 
 namespace osu.Game.Rulesets.UI
 {
@@ -18,10 +19,25 @@ namespace osu.Game.Rulesets.UI
         /// </summary>
         public Visibility LastFrameState;
 
+        public MlBridgeInstance Ai = MlBridgeInstance.GetInstance();
+
+        protected override void LoadComplete()
+        {
+            base.LoadComplete();
+
+            Ai.RegisterCursorContainer(this);
+        }
+
         protected override void Update()
         {
             base.Update();
             LastFrameState = State.Value;
+        }
+
+        protected override void Dispose(bool isDisposing)
+        {
+            base.Dispose(isDisposing);
+            Ai.ClearCursorContainer();
         }
     }
 }

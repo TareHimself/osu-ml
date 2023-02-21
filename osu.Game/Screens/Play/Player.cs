@@ -21,6 +21,7 @@ using osu.Framework.Input.Events;
 using osu.Framework.Logging;
 using osu.Framework.Screens;
 using osu.Framework.Threading;
+using osu.Game.ML;
 using osu.Game.Audio;
 using osu.Game.Beatmaps;
 using osu.Game.Configuration;
@@ -159,8 +160,11 @@ namespace osu.Game.Screens.Play
         /// <summary>
         /// Create a new player instance.
         /// </summary>
+
+        public MlBridgeInstance Ai = MlBridgeInstance.GetInstance();
         protected Player(PlayerConfiguration configuration = null)
         {
+
             Configuration = configuration ?? new PlayerConfiguration();
         }
 
@@ -1053,6 +1057,7 @@ namespace osu.Game.Screens.Play
         /// </summary>
         protected virtual void StartGameplay()
         {
+            Ai.RegisterGameplayClock((MasterGameplayClockContainer)GameplayClockContainer);
             if (GameplayClockContainer.IsRunning)
                 throw new InvalidOperationException($"{nameof(StartGameplay)} should not be called when the gameplay clock is already running");
 
@@ -1069,6 +1074,7 @@ namespace osu.Game.Screens.Play
 
         public override bool OnExiting(ScreenExitEvent e)
         {
+            Ai.ClearGameplayClock();
             screenSuspension?.RemoveAndDisposeImmediately();
             failAnimationLayer?.RemoveFilters();
 

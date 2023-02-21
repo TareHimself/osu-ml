@@ -4,6 +4,7 @@
 #nullable disable
 
 using System.Collections.Generic;
+using osu.Game.ML;
 
 namespace osu.Game.Screens.Play
 {
@@ -12,6 +13,7 @@ namespace osu.Game.Screens.Play
     {
         public T Action { get; }
 
+        public MlBridgeInstance Ai = MlBridgeInstance.GetInstance();
         public KeyCounterAction(T action)
             : base($"B{(int)(object)action + 1}")
         {
@@ -24,6 +26,16 @@ namespace osu.Game.Screens.Play
                 return false;
 
             IsLit = true;
+
+            if (action.ToString() == "LeftButton")
+            {
+                Ai.SetLeftButtonState(1);
+            }
+            else
+            {
+                Ai.SetRightButtonState(1);
+            }
+
             if (forwards)
                 Increment();
             return false;
@@ -35,6 +47,15 @@ namespace osu.Game.Screens.Play
                 return;
 
             IsLit = false;
+            if (action.ToString() == "LeftButton")
+            {
+                Ai.SetLeftButtonState(0);
+            }
+            else
+            {
+                Ai.SetRightButtonState(0);
+            }
+
             if (!forwards)
                 Decrement();
         }

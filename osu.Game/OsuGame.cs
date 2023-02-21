@@ -30,6 +30,7 @@ using osu.Framework.Localisation;
 using osu.Framework.Logging;
 using osu.Framework.Screens;
 using osu.Framework.Threading;
+using osu.Game.ML;
 using osu.Game.Beatmaps;
 using osu.Game.Collections;
 using osu.Game.Configuration;
@@ -194,6 +195,7 @@ namespace osu.Game
 
         private readonly List<OverlayContainer> visibleBlockingOverlays = new List<OverlayContainer>();
 
+        private MlBridgeInstance Ai = MlBridgeInstance.GetInstance();
         public OsuGame(string[] args = null)
         {
             this.args = args;
@@ -323,6 +325,7 @@ namespace osu.Game
 
             applySafeAreaConsiderations = LocalConfig.GetBindable<bool>(OsuSetting.SafeAreaConsiderations);
             applySafeAreaConsiderations.BindValueChanged(apply => SafeAreaContainer.SafeAreaOverrideEdges = apply.NewValue ? SafeAreaOverrideEdges : Edges.All, true);
+            Ai.SetHost(Host);
         }
 
         private ExternalLinkOpener externalLinkOpener;

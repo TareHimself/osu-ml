@@ -17,6 +17,7 @@ using osu.Game.Rulesets.Replays;
 using osu.Game.Scoring;
 using osu.Framework.Localisation;
 using osu.Game.Localisation;
+using osu.Game.ML;
 
 namespace osu.Game.Rulesets.Scoring
 {
@@ -143,6 +144,9 @@ namespace osu.Game.Rulesets.Scoring
 
         private double scoreMultiplier = 1;
 
+        public IBeatmap? latestBeatmap;
+
+        public MlBridgeInstance Ai = MlBridgeInstance.GetInstance();
         public ScoreProcessor(Ruleset ruleset)
         {
             this.ruleset = ruleset;
@@ -171,12 +175,15 @@ namespace osu.Game.Rulesets.Scoring
 
                 updateScore();
             };
+
         }
 
         public override void ApplyBeatmap(IBeatmap beatmap)
         {
             base.ApplyBeatmap(beatmap);
             beatmapApplied = true;
+            latestBeatmap = beatmap;
+            Ai.RegisterScoreProcessor(this);
         }
 
         protected sealed override void ApplyResultInternal(JudgementResult result)
@@ -577,6 +584,7 @@ namespace osu.Game.Rulesets.Scoring
         {
             base.Dispose(isDisposing);
             hitEvents.Clear();
+            Ai.ClearScoreProcessor();
         }
 
         /// <summary>

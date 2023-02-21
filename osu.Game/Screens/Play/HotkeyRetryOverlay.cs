@@ -18,8 +18,8 @@ namespace osu.Game.Screens.Play
                 return false;
 
             if (e.Action != GlobalAction.QuickRetry) return false;
-
-            BeginConfirm();
+            Confirm();
+            // BeginConfirm();
             return true;
         }
 
@@ -27,7 +27,7 @@ namespace osu.Game.Screens.Play
         {
             if (e.Action != GlobalAction.QuickRetry) return;
 
-            AbortConfirm();
+            // AbortConfirm();
         }
     }
 }
