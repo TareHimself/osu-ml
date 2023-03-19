@@ -579,8 +579,64 @@ namespace osu.Game.Rulesets.Scoring
         {
             base.Dispose(isDisposing);
             hitEvents.Clear();
-            Ai.ClearScoreProcessor();
+
         }
+
+        #region Static helper methods
+
+        /// <summary>
+        /// Given an accuracy (0..1), return the correct <see cref="ScoreRank"/>.
+        /// </summary>
+        public static ScoreRank RankFromAccuracy(double accuracy)
+        {
+            if (accuracy == accuracy_cutoff_x)
+                return ScoreRank.X;
+            if (accuracy >= accuracy_cutoff_s)
+                return ScoreRank.S;
+            if (accuracy >= accuracy_cutoff_a)
+                return ScoreRank.A;
+            if (accuracy >= accuracy_cutoff_b)
+                return ScoreRank.B;
+            if (accuracy >= accuracy_cutoff_c)
+                return ScoreRank.C;
+
+            return ScoreRank.D;
+        }
+
+        /// <summary>
+        /// Given a <see cref="ScoreRank"/>, return the cutoff accuracy (0..1).
+        /// Accuracy must be greater than or equal to the cutoff to qualify for the provided rank.
+        /// </summary>
+        public static double AccuracyCutoffFromRank(ScoreRank rank)
+        {
+            switch (rank)
+            {
+                case ScoreRank.X:
+                case ScoreRank.XH:
+                    return accuracy_cutoff_x;
+
+                case ScoreRank.S:
+                case ScoreRank.SH:
+                    return accuracy_cutoff_s;
+
+                case ScoreRank.A:
+                    return accuracy_cutoff_a;
+
+                case ScoreRank.B:
+                    return accuracy_cutoff_b;
+
+                case ScoreRank.C:
+                    return accuracy_cutoff_c;
+
+                case ScoreRank.D:
+                    return accuracy_cutoff_d;
+
+                default:
+                    throw new ArgumentOutOfRangeException(nameof(rank), rank, null);
+            }
+        }
+
+        #endregion
 
         /// <summary>
         /// Stores the required scoring data that fulfils the minimum requirements for a <see cref="ScoreProcessor"/> to calculate score.
