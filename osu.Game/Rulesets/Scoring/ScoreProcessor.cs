@@ -7,22 +7,29 @@ using System.Diagnostics;
 using System.Diagnostics.Contracts;
 using System.Linq;
 using osu.Framework.Bindables;
+using osu.Framework.Localisation;
 using osu.Framework.Utils;
 using osu.Game.Beatmaps;
 using osu.Game.Extensions;
+using osu.Game.Localisation;
 using osu.Game.Rulesets.Judgements;
 using osu.Game.Rulesets.Mods;
 using osu.Game.Rulesets.Objects;
 using osu.Game.Rulesets.Replays;
 using osu.Game.Scoring;
-using osu.Framework.Localisation;
-using osu.Game.Localisation;
 using osu.Game.ML;
 
 namespace osu.Game.Rulesets.Scoring
 {
     public partial class ScoreProcessor : JudgementProcessor
     {
+        private const double accuracy_cutoff_x = 1;
+        private const double accuracy_cutoff_s = 0.95;
+        private const double accuracy_cutoff_a = 0.9;
+        private const double accuracy_cutoff_b = 0.8;
+        private const double accuracy_cutoff_c = 0.7;
+        private const double accuracy_cutoff_d = 0;
+
         private const double max_score = 1000000;
 
         /// <summary>
@@ -98,7 +105,11 @@ namespace osu.Game.Rulesets.Scoring
         /// </summary>
         protected virtual double ClassicScoreMultiplier => 36;
 
-        private readonly Ruleset ruleset;
+        /// <summary>
+        /// The ruleset this score processor is valid for.
+        /// </summary>
+        public readonly Ruleset Ruleset;
+
         private readonly double accuracyPortion;
         private readonly double comboPortion;
 
@@ -149,7 +160,7 @@ namespace osu.Game.Rulesets.Scoring
         public MlBridgeInstance Ai = MlBridgeInstance.GetInstance();
         public ScoreProcessor(Ruleset ruleset)
         {
-            this.ruleset = ruleset;
+            Ruleset = ruleset;
 
             accuracyPortion = DefaultAccuracyPortion;
             comboPortion = DefaultComboPortion;
@@ -160,7 +171,7 @@ namespace osu.Game.Rulesets.Scoring
             Combo.ValueChanged += combo => HighestCombo.Value = Math.Max(HighestCombo.Value, combo.NewValue);
             Accuracy.ValueChanged += accuracy =>
             {
-                Rank.Value = rankFrom(accuracy.NewValue);
+                Rank.Value = RankFromAccuracy(accuracy.NewValue);
                 foreach (var mod in Mods.Value.OfType<IApplicableToScoreProcessor>())
                     Rank.Value = mod.AdjustRank(Rank.Value, accuracy.NewValue);
             };
@@ -298,8 +309,8 @@ namespace osu.Game.Rulesets.Scoring
         [Pure]
         public double ComputeAccuracy(ScoreInfo scoreInfo)
         {
-            if (!ruleset.RulesetInfo.Equals(scoreInfo.Ruleset))
-                throw new ArgumentException($"Unexpected score ruleset. Expected \"{ruleset.RulesetInfo.ShortName}\" but was \"{scoreInfo.Ruleset.ShortName}\".");
+            if (!Ruleset.RulesetInfo.Equals(scoreInfo.Ruleset))
+                throw new ArgumentException($"Unexpected score ruleset. Expected \"{Ruleset.RulesetInfo.ShortName}\" but was \"{scoreInfo.Ruleset.ShortName}\".");
 
             // We only extract scoring values from the score's statistics. This is because accuracy is always relative to the point of pass or fail rather than relative to the whole beatmap.
             extractScoringValues(scoreInfo.Statistics, out var current, out var maximum);
@@ -319,8 +330,8 @@ namespace osu.Game.Rulesets.Scoring
         [Pure]
         public long ComputeScore(ScoringMode mode, ScoreInfo scoreInfo)
         {
-            if (!ruleset.RulesetInfo.Equals(scoreInfo.Ruleset))
-                throw new ArgumentException($"Unexpected score ruleset. Expected \"{ruleset.RulesetInfo.ShortName}\" but was \"{scoreInfo.Ruleset.ShortName}\".");
+            if (!Ruleset.RulesetInfo.Equals(scoreInfo.Ruleset))
+                throw new ArgumentException($"Unexpected score ruleset. Expected \"{Ruleset.RulesetInfo.ShortName}\" but was \"{scoreInfo.Ruleset.ShortName}\".");
 
             extractScoringValues(scoreInfo, out var current, out var maximum);
 
@@ -370,22 +381,6 @@ namespace osu.Game.Rulesets.Scoring
                     double scaledRawScore = rawScore / max_score;
                     return (long)Math.Round(Math.Pow(scaledRawScore * Math.Max(1, totalBasicHitObjects), 2) * ClassicScoreMultiplier);
             }
-        }
-
-        private ScoreRank rankFrom(double acc)
-        {
-            if (acc == 1)
-                return ScoreRank.X;
-            if (acc >= 0.95)
-                return ScoreRank.S;
-            if (acc >= 0.9)
-                return ScoreRank.A;
-            if (acc >= 0.8)
-                return ScoreRank.B;
-            if (acc >= 0.7)
-                return ScoreRank.C;
-
-            return ScoreRank.D;
         }
 
         /// <summary>
@@ -559,7 +554,7 @@ namespace osu.Game.Rulesets.Scoring
                             break;
 
                         default:
-                            maxResult = maxBasicResult ??= ruleset.GetHitResults().MaxBy(kvp => Judgement.ToNumericResult(kvp.result)).result;
+                            maxResult = maxBasicResult ??= Ruleset.GetHitResults().MaxBy(kvp => Judgement.ToNumericResult(kvp.result)).result;
                             break;
                     }
 
