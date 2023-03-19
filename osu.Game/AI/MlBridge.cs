@@ -11,12 +11,15 @@ using osuTK;
 using System.Collections.Generic;
 using osu.Game.Screens.Play;
 using System;
-using osu.Framework;
+using osu.Framework.Graphics.Rendering;
 using osu.Framework.Platform;
 using SixLabors.ImageSharp;
 
 namespace osu.Game.ML
 {
+
+
+
 
 
     public class MlLogger
@@ -324,6 +327,7 @@ namespace osu.Game.ML
         public void SetHost(GameHost Host)
         {
             this.host = Host;
+
         }
 
         public void RegisterScoreProcessor(ScoreProcessor processor)
@@ -439,6 +443,39 @@ namespace osu.Game.ML
             }
         }
 
+        /*
+
+public async void CaptureGameFrame()
+        {
+            try
+            {
+                if (host == null || this.ActiveScoreProcessor == null || this.ActiveCursorContainer == null || this.ActiveCursorContainer == null || this.ActiveClockContainer == null)
+                {
+                    return;
+                }
+
+                if (this.IsBreakTime)
+                {
+                    return;
+                }
+
+                if (this.ActiveClockContainer.CurrentTime - FirstHitTime < 0)
+                {
+                    return;
+                }
+
+                Vector2 pos = this.ActiveCursorContainer.ActiveCursor.Parent.ToScreenSpace(this.ActiveCursorContainer.ActiveCursor.Position);
+
+                await File.AppendAllTextAsync(@$"{MlLogger.AGENT_REPO_PATH}pending-capture\{this.CaptureId}.txt", $"{DateTimeOffset.Now.ToUnixTimeMilliseconds()}|{this.LeftButtonState},{this.RightButtonState},{((int)pos.X).ToString()},{((int)pos.Y).ToString()}" + "\n").ConfigureAwait(false);
+            }
+            catch (System.Exception ex)
+            {
+                ErrorLogger.Log("Error Capturing Frame," + ex.ToString());
+            }
+
+        }
+        */
+
         public async void CaptureGameFrame()
         {
             try
@@ -459,11 +496,12 @@ namespace osu.Game.ML
                 }
 
                 Vector2 pos = this.ActiveCursorContainer.ActiveCursor.Parent.ToScreenSpace(this.ActiveCursorContainer.ActiveCursor.Position);
-                string gameState = $"{GetFrameId()},{this.LeftButtonState},{this.RightButtonState},{((int)pos.X).ToString()},{((int)pos.Y).ToString()}";
+
+
 
                 using (var image = await host.TakeScreenshotAsync().ConfigureAwait(false))
                 {
-
+                    string gameState = $"{GetFrameId()},{this.LeftButtonState},{this.RightButtonState},{((int)pos.X).ToString()},{((int)pos.Y).ToString()}";
                     string savePath = @$"{MlLogger.AGENT_REPO_PATH}pending-capture\{gameState}.png";
 
                     using (var stream = new FileStream(savePath, FileMode.CreateNew))
@@ -478,6 +516,57 @@ namespace osu.Game.ML
             }
 
         }
+
+        // public async void CaptureGameFrame2()
+        // {
+        //     try
+        //     {
+        //         if (host == null || this.ActiveScoreProcessor == null || this.ActiveCursorContainer == null || this.ActiveCursorContainer == null || this.ActiveClockContainer == null)
+        //         {
+        //             return;
+        //         }
+
+        //         if (this.IsBreakTime)
+        //         {
+        //             return;
+        //         }
+
+        //         if (this.ActiveClockContainer.CurrentTime - FirstHitTime < 0)
+        //         {
+        //             return;
+        //         }
+
+        //         int width = host.Window.ClientSize.Width;
+        //         int height = host.Window.ClientSize.Height;
+        //         var pixelData = SixLabors.ImageSharp.Configuration.Default.MemoryAllocator.Allocate<Rgba32>(width * height);
+
+        //         host.DrawThread.Scheduler.Add(() =>
+        //         {
+        //             host.Renderer.MakeCurrent();
+
+        //             // todo: add proper renderer API for screenshots and veldrid support
+        //             if (Window.GraphicsSurface.Type == GraphicsSurfaceType.OpenGL)
+        //                 GL.ReadPixels(0, 0, width, height, PixelFormat.Rgba, PixelType.UnsignedByte, ref MemoryMarshal.GetReference(pixelData.Memory.Span));
+
+        //             // ReSharper disable once AccessToDisposedClosure
+        //             completionEvent.Set();
+        //         });
+
+        //         // this is required as attempting to use a TaskCompletionSource blocks the thread calling SetResult on some configurations.
+        //         // ReSharper disable once AccessToDisposedClosure
+        //         if (!await Task.Run(() => completionEvent.Wait(5000)).ConfigureAwait(false))
+        //             throw new TimeoutException("Screenshot data did not arrive in a timely fashion");
+
+        //         var image = Image.LoadPixelData<Rgba32>(pixelData.Memory.Span, width, height);
+        //         image.Mutate(c => c.Flip(FlipMode.Vertical));
+
+        //     }
+        //     catch (System.Exception ex)
+        //     {
+        //         ErrorLogger.Log("Error Capturing Frame," + ex.ToString());
+        //     }
+
+        // }
 
     }
 }
