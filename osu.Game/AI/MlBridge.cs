@@ -13,27 +13,31 @@ using osu.Game.Screens.Play;
 using System;
 using osu.Framework.Graphics.Rendering;
 using osu.Framework.Platform;
+
 using SixLabors.ImageSharp;
 
 namespace osu.Game.ML
 {
 
 
+    public class Data
+    {
+        public static string[] Paths = File.ReadAllLines(Path.Join(Directory.GetCurrentDirectory(), "config.txt"));
 
+        public static string PYTHON_REPO_PATH = Paths[0];
+    }
 
 
     public class MlLogger
     {
-
-        public static string AGENT_REPO_PATH = @"D:\Github\osu-ai\";
-        private string Path = "";
+        private string LoggerPath = "";
 
         private Queue<string> logQueue = new Queue<string>();
 
         private bool processing = false;
         public MlLogger(string logger_name)
         {
-            Path = AGENT_REPO_PATH + logger_name + ".log";
+            LoggerPath = Path.Join(Data.PYTHON_REPO_PATH, logger_name + ".log");
         }
 
         public void Log(string msg)
@@ -53,7 +57,7 @@ namespace osu.Game.ML
         {
             processing = true;
 
-            await File.AppendAllTextAsync(Path, msg + "\n").ConfigureAwait(false);
+            await File.AppendAllTextAsync(LoggerPath, msg + "\n").ConfigureAwait(false);
 
             if (logQueue.Count > 0)
             {
@@ -176,6 +180,8 @@ namespace osu.Game.ML
         private GameHost? host;
 
         private string CaptureId = "";
+
+        private string CapturePath = "";
         private Timer? CaptureTimer;
         public static MlBridgeInstance GetInstance()
         {
@@ -274,6 +280,7 @@ namespace osu.Game.ML
                         this.CaptureId = args[1];
                         string op = args[2];
                         string interval = args[3];
+                        this.CapturePath = args[4];
 
                         if (op == "start")
                         {
@@ -443,41 +450,10 @@ namespace osu.Game.ML
             }
         }
 
-        /*
-
-public async void CaptureGameFrame()
-        {
-            try
-            {
-                if (host == null || this.ActiveScoreProcessor == null || this.ActiveCursorContainer == null || this.ActiveCursorContainer == null || this.ActiveClockContainer == null)
-                {
-                    return;
-                }
-
-                if (this.IsBreakTime)
-                {
-                    return;
-                }
-
-                if (this.ActiveClockContainer.CurrentTime - FirstHitTime < 0)
-                {
-                    return;
-                }
-
-                Vector2 pos = this.ActiveCursorContainer.ActiveCursor.Parent.ToScreenSpace(this.ActiveCursorContainer.ActiveCursor.Position);
-
-                await File.AppendAllTextAsync(@$"{MlLogger.AGENT_REPO_PATH}pending-capture\{this.CaptureId}.txt", $"{DateTimeOffset.Now.ToUnixTimeMilliseconds()}|{this.LeftButtonState},{this.RightButtonState},{((int)pos.X).ToString()},{((int)pos.Y).ToString()}" + "\n").ConfigureAwait(false);
-            }
-            catch (System.Exception ex)
-            {
-                ErrorLogger.Log("Error Capturing Frame," + ex.ToString());
-            }
-
-        }
-        */
 
         public async void CaptureGameFrame()
         {
+            string savePathStart = this.CapturePath;
             try
             {
                 if (host == null || this.ActiveScoreProcessor == null || this.ActiveCursorContainer == null || this.ActiveCursorContainer == null || this.ActiveClockContainer == null)
@@ -498,11 +474,14 @@ public async void CaptureGameFrame()
                 Vector2 pos = this.ActiveCursorContainer.ActiveCursor.Parent.ToScreenSpace(this.ActiveCursorContainer.ActiveCursor.Position);
 
 
-
-                using (var image = await host.TakeScreenshotAsync().ConfigureAwait(false))
+                string gameState = "";
+                using (var image = await host.TakeScreenshotAsyncMl(delegate ()
                 {
-                    string gameState = $"{GetFrameId()},{this.LeftButtonState},{this.RightButtonState},{((int)pos.X).ToString()},{((int)pos.Y).ToString()}";
-                    string savePath = @$"{MlLogger.AGENT_REPO_PATH}pending-capture\{gameState}.png";
+                    gameState = $"{GetFrameId()},{this.LeftButtonState},{this.RightButtonState},{((int)pos.X).ToString()},{((int)pos.Y).ToString()}";
+                }).ConfigureAwait(false))
+                {
+
+                    string savePath = Path.Join(savePathStart, $"{gameState}.png");
 
                     using (var stream = new FileStream(savePath, FileMode.CreateNew))
                     {
