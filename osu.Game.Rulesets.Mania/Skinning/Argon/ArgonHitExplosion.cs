@@ -43,10 +43,9 @@ namespace osu.Game.Rulesets.Mania.Skinning.Argon
             {
                 largeFaint = new Container
                 {
-                    Anchor = Anchor.BottomCentre,
-                    Origin = Anchor.BottomCentre,
+                    Anchor = Anchor.Centre,
+                    Origin = Anchor.Centre,
                     RelativeSizeAxes = Axes.Both,
-                    Height = ArgonNotePiece.NOTE_ACCENT_RATIO,
                     Masking = true,
                     CornerRadius = ArgonNotePiece.CORNER_RADIUS,
                     Blending = BlendingParameters.Additive,
