@@ -54,7 +54,8 @@ namespace osu.Game.Database
         /// Exports an item to a legacy (.zip based) package.
         /// </summary>
         /// <param name="item">The item to export.</param>
-        public void Export(TModel item)
+        /// <param name="bShouldPresent">Should we present the item after exporting.</param>
+        public void Export(TModel item, bool bShouldPresent = true)
         {
             string itemFilename = GetFilename(item).GetValidFilename();
 
@@ -71,7 +72,7 @@ namespace osu.Game.Database
             using (var stream = exportStorage.CreateFileSafely(filename))
                 ExportModelTo(item, stream);
 
-            exportStorage.PresentFileExternally(filename);
+            if (bShouldPresent) exportStorage.PresentFileExternally(filename);
         }
 
         /// <summary>

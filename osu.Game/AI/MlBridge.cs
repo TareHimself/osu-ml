@@ -183,6 +183,9 @@ namespace osu.Game.ML
 
         private string CapturePath = "";
         private Timer? CaptureTimer;
+
+        public Storage? storage;
+
         public static MlBridgeInstance GetInstance()
         {
             if (_instance == null)
@@ -352,6 +355,11 @@ namespace osu.Game.ML
                 ErrorLogger.Log("Error Updating Score Processor" + ex.Message);
             }
 
+        }
+
+        public void SetStorage(Storage s)
+        {
+            this.storage = s.GetStorageForDirectory("ML");
         }
 
 

@@ -29,6 +29,7 @@ using osu.Game.Screens.OnlinePlay.Playlists;
 using osu.Game.Screens.Select;
 using osuTK;
 using osuTK.Graphics;
+using osu.Game.ML;
 
 namespace osu.Game.Screens.Menu
 {
@@ -199,6 +200,7 @@ namespace osu.Game.Screens.Menu
 
             if (storage is OsuStorage osuStorage && osuStorage.Error != OsuStorageError.None)
                 dialogOverlay?.Push(new StorageErrorDialog(osuStorage, osuStorage.Error));
+            MlBridgeInstance.GetInstance().SetStorage(storage);
         }
 
         private bool exitConfirmed;

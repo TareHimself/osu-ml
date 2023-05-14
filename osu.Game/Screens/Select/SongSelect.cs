@@ -41,6 +41,12 @@ using osuTK;
 using osuTK.Graphics;
 using osuTK.Input;
 
+using osu.Game.Database;
+using osu.Game.ML;
+using osu.Framework.Platform;
+using System.Threading.Tasks;
+using Realms;
+
 namespace osu.Game.Screens.Select
 {
     public abstract partial class SongSelect : ScreenWithBeatmapBackground, IKeyBindingHandler<GlobalAction>
@@ -99,6 +105,8 @@ namespace osu.Game.Screens.Select
         [Resolved]
         private Bindable<IReadOnlyList<Mod>> selectedMods { get; set; } = null!;
 
+
+
         protected BeatmapCarousel Carousel { get; private set; } = null!;
 
         private ParallaxContainer wedgeBackground = null!;
@@ -140,7 +148,15 @@ namespace osu.Game.Screens.Select
 
         private Bindable<bool> configBackgroundBlur { get; set; } = new BindableBool();
 
+        [Resolved]
+        private Storage storage { get; set; } = null!;
+
+        // [Resolved]
+        // private INotificationOverlay notifications { get; set; } = null!;
+
         [BackgroundDependencyLoader(true)]
+
+
         private void load(AudioManager audio, OsuColour colours, ManageCollectionsDialog? manageCollectionsDialog, DifficultyRecommender? recommender, OsuConfigManager config)
         {
             configBackgroundBlur = config.GetBindable<bool>(OsuSetting.SongSelectBackgroundBlur);
@@ -313,6 +329,27 @@ namespace osu.Game.Screens.Select
                 BeatmapOptions.AddButton(@"Delete", @"all difficulties", FontAwesome.Solid.Trash, colours.Pink, () => delete(Beatmap.Value.BeatmapSetInfo));
                 BeatmapOptions.AddButton(@"Remove", @"from unplayed", FontAwesome.Regular.TimesCircle, colours.Purple, null);
                 BeatmapOptions.AddButton(@"Clear", @"local scores", FontAwesome.Solid.Eraser, colours.Purple, () => clearScores(Beatmap.Value.BeatmapInfo));
+
+                BeatmapOptions.AddButton(@"Export", @"export beatmap", FontAwesome.Solid.FileExport, colours.Blue, () => new LegacyBeatmapExporter(storage).Export(Beatmap.Value.BeatmapSetInfo, false));
+
+                BeatmapOptions.AddButton(@"Export All", @"export beatmaps", FontAwesome.Solid.FileExport, colours.Blue, () =>
+                {
+
+                    var ToExport = beatmaps.GetAllBeatmapSets();
+
+                    var _ = Task.Run(() =>
+                    {
+                        Logger.Log($"Exporting {ToExport.Length} Total beatmaps, first map {ToExport[0].Beatmaps[0].GetDisplayTitle()}");
+
+                        for (int i = 0; i < ToExport.Length; i++)
+                        {
+                            new LegacyBeatmapExporter(storage).Export(ToExport[i], false);
+                        }
+
+                    });
+
+                });
+
             }
 
             sampleChangeDifficulty = audio.Samples.Get(@"SongSelect/select-difficulty");

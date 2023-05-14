@@ -268,6 +268,20 @@ namespace osu.Game.Beatmaps
         }
 
         /// <summary>
+        /// Perform a lookup query on available <see cref="BeatmapSetInfo"/>s.
+        /// </summary>
+        /// <returns>All the beatmap sets.</returns>
+        public BeatmapSetInfo[] GetAllBeatmapSets()
+        {
+            return Realm.Run(r => r.All<BeatmapSetInfo>().Detach().ToArray());
+        }
+
+        public RealmAccess GetRealm()
+        {
+            return Realm;
+        }
+
+        /// <summary>
         /// Perform a lookup query on available <see cref="BeatmapInfo"/>s.
         /// </summary>
         /// <param name="query">The query.</param>
@@ -295,6 +309,7 @@ namespace osu.Game.Beatmaps
         {
             Realm.Write(r =>
             {
+
                 var items = r.All<BeatmapSetInfo>().Where(s => !s.DeletePending && !s.Protected);
                 DeleteVideos(items.ToList());
             });
