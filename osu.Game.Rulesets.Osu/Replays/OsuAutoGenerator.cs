@@ -157,7 +157,8 @@ namespace osu.Game.Rulesets.Osu.Replays
                 if (spinner.SpinsRequired == 0)
                     return;
 
-                calcSpinnerStartPosAndDirection(((OsuReplayFrame)Frames[^1]).Position, out startPosition, out spinnerDirection);
+                calcSpinnerStartPosAndDirection(((OsuReplayFrame)Frames[^1]).Position, out startPosition, out _);
+                spinnerDirection = -1;
 
                 Vector2 spinCentreOffset = SPINNER_CENTRE - ((OsuReplayFrame)Frames[^1]).Position;
 
